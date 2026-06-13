@@ -11,7 +11,7 @@ from budget_app.serializers.transfer_serializer import (
     BudgetTransferSerializer,
 )
 from budget_app.services.budget_service import BudgetService
-from budget_app.services.transfer_service import BudgetTransferService
+from budget_app.services.transfer_service import BudgetTransferError, BudgetTransferService
 
 
 class BudgetSheetViewSet(viewsets.ModelViewSet):
@@ -43,14 +43,17 @@ class BudgetSheetViewSet(viewsets.ModelViewSet):
                 {"detail": "调剂项必须属于当前预算表"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        transfer = BudgetTransferService().execute_transfer(
-            budget_sheet=budget,
-            from_item=validated["from_item"],
-            to_item=validated["to_item"],
-            transfer_amount=validated["transfer_amount"],
-            reason=validated.get("reason", ""),
-            actor_id=str(request.user.id or "system"),
-        )
+        try:
+            transfer = BudgetTransferService().execute_transfer(
+                budget_sheet=budget,
+                from_item=validated["from_item"],
+                to_item=validated["to_item"],
+                transfer_amount=validated["transfer_amount"],
+                reason=validated.get("reason", ""),
+                actor_id=str(request.user.id or "system"),
+            )
+        except BudgetTransferError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(
             BudgetTransferSerializer(transfer).data,
             status=status.HTTP_201_CREATED,
