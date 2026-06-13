@@ -5,6 +5,7 @@ from budget_app.views.expense_views import ExpenseRecordViewSet
 from budget_app.views.item_views import BudgetItemViewSet
 from budget_app.views.reconciliation_views import ReconciliationViewSet
 from budget_app.views.supplier_views import SupplierViewSet
+from budget_app.views.transfer_views import BudgetTransferViewSet
 
 
 router = DefaultRouter()
@@ -13,5 +14,6 @@ router.register("items", BudgetItemViewSet, basename="budget-item")
 router.register("expenses", ExpenseRecordViewSet, basename="expense")
 router.register("suppliers", SupplierViewSet, basename="supplier")
 router.register("reconciliations", ReconciliationViewSet, basename="reconciliation")
+router.register("transfers", BudgetTransferViewSet, basename="budget-transfer")
 
 urlpatterns = router.urls

@@ -181,6 +181,21 @@ class Reconciliation(TimestampedModel):
         super().save(*args, **kwargs)
 
 
+class BudgetTransfer(TimestampedModel):
+    budget_sheet = models.ForeignKey(BudgetSheet, on_delete=models.CASCADE, related_name="transfers")
+    from_item = models.ForeignKey(BudgetItem, on_delete=models.PROTECT, related_name="outgoing_transfers")
+    to_item = models.ForeignKey(BudgetItem, on_delete=models.PROTECT, related_name="incoming_transfers")
+    transfer_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    reason = models.TextField(blank=True, default="")
+    operator_id = models.CharField(max_length=64, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.budget_sheet_id}:{self.from_item_id}->{self.to_item_id}:{self.transfer_amount}"
+
+
 class AuditLog(TimestampedModel):
     actor_id = models.CharField(max_length=64, blank=True, default="")
     action = models.CharField(max_length=80)
